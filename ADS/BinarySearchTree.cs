@@ -1,6 +1,6 @@
 ﻿namespace ADS;
 
-public class BinarySearchTree <T> where T : IElementWithKey
+public class BinarySearchTree<T> where T : IElementWithKey
 {
     private IBinaryNode<T> root;
 
@@ -21,7 +21,7 @@ public class BinarySearchTree <T> where T : IElementWithKey
             root = new BinaryNode<T>(element);
             return;
         }
-        
+
         IBinaryNode<T> current = root;
         IBinaryNode<T> previous = root;
 
@@ -58,5 +58,60 @@ public class BinarySearchTree <T> where T : IElementWithKey
                 }
             }
         }
+    }
+
+    public void InOrder(Action<T> action)
+    {
+        InOrderRecursive(root, action);
+    }
+
+    // InOrder: Left -> Middle -> Right
+    private void InOrderRecursive(IBinaryNode<T> node, Action<T> action)
+    {
+        if (node is BinaryNode<T> binaryNode)
+        {
+            InOrderRecursive(binaryNode.Left, action);
+            action(binaryNode.Element);
+            InOrderRecursive(binaryNode.Right, action);
+        }
+    }
+
+    public void PreOrder(Action<T> action)
+    {
+        PreOrderRecursive(root, action);
+    }
+
+    // PreOrder: Middle -> Left -> Right
+    private void PreOrderRecursive(IBinaryNode<T> node, Action<T> action)
+    {
+        if (node is BinaryNode<T> binaryNode)
+        {
+            action(binaryNode.Element);
+            PreOrderRecursive(binaryNode.Left, action);
+            PreOrderRecursive(binaryNode.Right, action);
+        }
+    }
+
+    public void PostOrder(Action<T> action)
+    {
+        PostOrderRecursive(root, action);
+    }
+
+    // PostOrder: Left -> Right -> Middle
+    private void PostOrderRecursive(IBinaryNode<T> node, Action<T> action)
+    {
+        if (node is BinaryNode<T> binaryNode)
+        {
+            PostOrderRecursive(binaryNode.Left, action);
+            PostOrderRecursive(binaryNode.Right, action);
+            action(binaryNode.Element);
+        }
+    }
+
+    public override string ToString()
+    {
+        var elements = new List<string>();
+        InOrder(T => elements.Add(elements.ToString() ?? ""));
+        return string.Join(", ", elements);
     }
 }
