@@ -12,7 +12,13 @@ public class EmptyNode<T> : IBinaryNode<T> where T : IElementWithKey
 
 public class EmptyLeaf<T> : IBinaryNode<T> where T : IElementWithKey
 {
-    public IBinaryNode<T> Parent { get; set; }
+    private IBinaryNode<T> _parent;
+
+    public IBinaryNode<T> Parent
+    {
+        get {return _parent;}
+        set {_parent = value;}
+    }
     
     public bool IsEmptyNode() => true;
     

@@ -35,9 +35,11 @@ public class MaxMinPriorityQueue<T> where T : IElementWithKey
         int right = 2 * index + 2;
         int target = index;
 
-        if (left < size &&
-            ((mode == MaxMin.Max && Greater(data[left], data[target])) ||
-             (mode == MaxMin.Min && Less(data[left], data[target]))))
+        Func<T,T,bool> f = mode == MaxMin.Max ? Greater : Less;
+        
+        if (left < size && f(data[left], data[target]))
+           // ((mode == MaxMin.Max && Greater(data[left], data[target])) ||
+           //  (mode == MaxMin.Min && Less(data[left], data[target]))))
         {
             target = left;
         }
@@ -51,11 +53,18 @@ public class MaxMinPriorityQueue<T> where T : IElementWithKey
 
         if (target != index)
         {
-            (data[index], data[target]) = (data[target], data[index]);
+            Swap(index, target);
+            //(data[index], data[target]) = (data[target], data[index]);
             Heapify(target);
         }
     }
 
+    private void Swap(int index1, int index2)
+    {
+        (data[index1], data[index2]) = (data[index2], data[index1]);
+        
+    }
+    
     public T First()
     {
         if (size == 0)

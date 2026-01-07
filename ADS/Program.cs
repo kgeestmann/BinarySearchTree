@@ -1,6 +1,6 @@
 ﻿namespace ADS;
 
-public class Programm
+public class Program
 {
     public static void Main()
     {
