@@ -75,5 +75,38 @@ public class Program
             var extracted = minQueue.ExtractFirst();
             Console.WriteLine($"Key: {extracted.Key}, Name: {extracted.Name}");
         }
+        
+        Console.WriteLine("\n=== 8.3 Test mit Test-Klasse (MaxPriorityQueue) ===");
+
+        var pq = new MaxPriorityQueue<Test>(20);
+        Test[] arr = new Test[10];
+
+// 10 Objekte mit ChangeableKey 1..10
+        for (int i = 0; i < 10; i++)
+        {
+            arr[i] = new Test(i + 1, i + 1);
+            pq.Insert(arr[i]);
+        }
+
+        Console.WriteLine("First (soll 10 sein): " + pq.First().ChangeableKey);
+
+// ChangeableKey verbessern → Action → IncreaseKey
+        arr[0].ChangeableKey = 100;
+
+        Console.WriteLine("First nach Erhöhung (soll 100 sein): " + pq.First().ChangeableKey);
+
+        Console.WriteLine("\nExtractFirst:");
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine(pq.ExtractFirst());
+            }
+            catch
+            {
+                break;
+            }
+        }
+
     }
 }
