@@ -246,7 +246,7 @@ public class BinarySearchTree<T> where T : IElementWithKey
     public override string ToString()
     {
         var elements = new List<string>();
-        InOrder(T => elements.Add(elements.ToString() ?? ""));
+        InOrder(e => elements.Add(e.Key.ToString()));
         return string.Join(", ", elements);
     }
 }
