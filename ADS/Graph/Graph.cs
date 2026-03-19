@@ -2,7 +2,12 @@
 
 public class Graph
 {
-    public Node[] nodes;
+    private Node[] nodes;
+
+    public Node[] Nodes
+    {
+        get { return nodes; }
+    }
 
     public Graph(int n)
     {
@@ -16,17 +21,24 @@ public class Graph
         nodes[fromId].AddEdge(nodes[toId], weight);
     }
 
-    public void BFS(Node s)
+    // ===== BFS(int id) =====
+    public void BFS(int id)
+    {
+        BFS(nodes[id]);
+    }
+
+    // interner BFS wie im Pseudocode (mit Properties)
+    private void BFS(Node s)
     {
         foreach (var n in nodes)
         {
-            n.color = Color.White;
-            n.ChangeableKey = -1; 
-            n.parent = null;
+            n.Color = Color.White;
+            n.Distance = -1;
+            n.Parent = null;
         }
 
-        s.color = Color.Grey;
-        s.ChangeableKey = 0;
+        s.Color = Color.Grey;
+        s.Distance = 0;
 
         var q = new Queue<Node>();
         q.Enqueue(s);
@@ -37,96 +49,110 @@ public class Graph
 
             u.IterateThroughNeighbors(v =>
             {
-                if (v.color == Color.White)
+                if (v.Color == Color.White)
                 {
-                    v.color = Color.Grey;
-                    v.ChangeableKey = u.ChangeableKey + 1;
-                    v.parent = u;
+                    v.Color = Color.Grey;
+                    v.Distance = u.Distance + 1;
+                    v.Parent = u;
                     q.Enqueue(v);
                 }
             });
 
-            u.color = Color.Black;
+            u.Color = Color.Black;
         }
     }
 
-    public void DFS()
+    // ===== DFS(int id) =====
+    public void DFS(int id)
     {
         foreach (var n in nodes)
         {
-            n.color = Color.White;
-            n.ChangeableKey = -1; 
-            n.parent = null;
+            n.Color = Color.White;
+            n.Distance = -1;
+            n.Parent = null;
         }
 
+        // Start wie gefordert bei nodes[id]
+        DFSVisit(nodes[id], 0);
+
+        // Optional (wie in der Vorlesung): restliche Komponenten auch besuchen
         foreach (var n in nodes)
         {
-            if (n.color == Color.White)
+            if (n.Color == Color.White)
                 DFSVisit(n, 0);
         }
     }
 
     private void DFSVisit(Node n, int dist)
     {
-        n.ChangeableKey = dist;
-        n.color = Color.Grey;
+        n.Distance = dist;
+        n.Color = Color.Grey;
 
         n.IterateThroughNeighbors(x =>
         {
-            if (x.color == Color.White)
+            if (x.Color == Color.White)
             {
-                x.parent = n;
+                x.Parent = n;
                 DFSVisit(x, dist + 1);
             }
         });
 
-        n.color = Color.Black;
+        n.Color = Color.Black;
     }
 
+    // ===== PrintPath(Node s, Node v) =====
     public void PrintPath(Node s, Node v)
     {
         if (v == s)
         {
             Console.WriteLine(s.Key);
         }
-        else if (v.parent == null)
+        else if (v.Parent == null)
         {
             Console.WriteLine("es gibt keinen Pfad von " + s.Key + " nach " + v.Key);
         }
         else
         {
-            PrintPath(s, v.parent);
+            PrintPath(s, v.Parent);
             Console.WriteLine(v.Key);
         }
     }
-    
-    public void Dijkstra(Node s)
+
+    // ===== Dijkstra(int id) =====
+    public void Dijkstra(int id)
+    {
+        Dijkstra(nodes[id]);
+    }
+
+    // interner Dijkstra wie im Pseudocode (MinPriorityQueue über Distance/ChangeableKey)
+    private void Dijkstra(Node s)
     {
         var q = new MinPriorityQueue<Node>(nodes.Length);
 
         foreach (var v in nodes)
         {
-            if (v != s) v.ChangeableKey = int.MaxValue;
-            else v.ChangeableKey = 0;
+            if (v != s) v.Distance = int.MaxValue;
+            else v.Distance = 0;
 
-            v.parent = null;
-            v.color = Color.White;
+            v.Parent = null;
+            v.Color = Color.White; // nicht zwingend für Dijkstra, aber ok
             q.Insert(v);
         }
-        
-        for (int i = 0; i < nodes.Length; i++)
+
+        // wie im Pseudocode: solange Queue nicht leer
+        while (q.Size > 0)
         {
-            var x = q.ExtractFirst(); 
+            var x = q.ExtractFirst();
 
             x.IterateThroughNeighbors(y =>
             {
                 int w = x.GetWeight(y);
-                
-                if (x.ChangeableKey != int.MaxValue &&
-                    y.ChangeableKey >= x.ChangeableKey + w)
+
+                if (x.Distance != int.MaxValue &&
+                    y.Distance >= x.Distance + w)
                 {
-                    y.ChangeableKey = x.ChangeableKey + w;
-                    y.parent = x;
+                    y.Distance = x.Distance + w; // triggert ChangingAction -> Heap steigt an
+                    y.Parent = x;
                 }
             });
         }

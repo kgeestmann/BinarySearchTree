@@ -1,8 +1,16 @@
-﻿namespace ADS;
+﻿using System.Runtime.InteropServices;
+
+namespace ADS;
 
 public class BinarySearchTree<T> where T : IElementWithKey
 {
     private IBinaryNode<T> root;
+
+    // Root-Accessor (read-only)
+    public IBinaryNode<T> Root
+    {
+        get { return root; }
+    }
 
     public BinarySearchTree(T element)
     {
@@ -16,6 +24,7 @@ public class BinarySearchTree<T> where T : IElementWithKey
 
     public void Insert(T element)
     {
+        // leerer Baum -> neues Root
         if (root is EmptyNode<T>)
         {
             root = new BinaryNode<T>(element);
@@ -25,6 +34,7 @@ public class BinarySearchTree<T> where T : IElementWithKey
         IBinaryNode<T> current = root;
         IBinaryNode<T> previous = root;
 
+        // runterlaufen bis EmptyLeaf
         while (current is BinaryNode<T> node)
         {
             previous = current;
@@ -34,14 +44,18 @@ public class BinarySearchTree<T> where T : IElementWithKey
                 current = node.Left;
             }
             else if (element.Key > node.Element.Key)
+            {
                 current = node.Right;
+            }
             else
             {
+                // gleicher Key -> Element ersetzen
                 node.Element = element;
                 return;
             }
         }
 
+        // EmptyLeaf erreicht -> neuen BinaryNode einhängen
         if (current is EmptyLeaf<T> leaf)
         {
             BinaryNode<T> newNode = new BinaryNode<T>(element, leaf.Parent);
@@ -60,48 +74,54 @@ public class BinarySearchTree<T> where T : IElementWithKey
         }
     }
 
-    public T? Delete(int key)
+    public T Delete(int key)
     {
+        // 3 Fälle (0/1/2 Kinder) + Transplant + Successor
         BinaryNode<T>? node = FindNode(key);
         if (node == null)
         {
-            return default;
+            throw new InvalidOperationException("Delete: Key nicht gefunden: " + key);
         }
-        
+
         T deletedElement = node.Element;
-        
-        // kein linkes Kind
+
+        // Fall 1: kein linkes Kind -> ersetze node durch Right
         if (node.Left is not BinaryNode<T>)
         {
             Transplant(node, node.Right);
         }
-        // kein rechtes Kind
+        // Fall 2: kein rechtes Kind -> ersetze node durch Left
         else if (node.Right is not BinaryNode<T>)
         {
             Transplant(node, node.Left);
         }
-        // zwei Kinder
+        // Fall 3: zwei Kinder -> successor = Minimum(rechter Teilbaum)
         else
         {
             BinaryNode<T> successor = MinimumNode(node.Right)!;
 
+            // successor ist nicht direktes rechtes Kind -> erst successor "hochholen"
             if (successor.Parent != node)
             {
                 Transplant(successor, successor.Right);
+
                 successor.Right = node.Right;
                 if (successor.Right is BinaryNode<T> rightChild)
                     rightChild.Parent = successor;
             }
-            
+
+            // node durch successor ersetzen
             Transplant(node, successor);
+
             successor.Left = node.Left;
             if (successor.Left is BinaryNode<T> leftChild)
                 leftChild.Parent = successor;
         }
+
         return deletedElement;
     }
 
-    // Knoten mit dem Key suchen
+    // Suche nach Knoten (liefert Node oder null)
     private BinaryNode<T>? FindNode(int key)
     {
         IBinaryNode<T> current = root;
@@ -118,12 +138,14 @@ public class BinarySearchTree<T> where T : IElementWithKey
             }
             else
             {
-                return node;}
+                return node;
+            }
         }
+
         return null;
     }
 
-    // Knoten u mit v ersetzen
+    // Transplant(u, v): ersetzt Teilbaum u durch v (inkl. Parent-Update von v)
     private void Transplant(BinaryNode<T> u, IBinaryNode<T> v)
     {
         if (u.Parent is EmptyNode<T>)
@@ -147,7 +169,7 @@ public class BinarySearchTree<T> where T : IElementWithKey
             node.Parent = u.Parent;
         }
     }
-    
+
     public void InOrder(Action<T> action)
     {
         InOrderRecursive(root, action);
@@ -196,6 +218,7 @@ public class BinarySearchTree<T> where T : IElementWithKey
         }
     }
 
+    // MinimumNode: gehe links runter bis kein BinaryNode mehr
     private BinaryNode<T>? MinimumNode(IBinaryNode<T> node)
     {
         if (node is not BinaryNode<T> current)
@@ -205,22 +228,21 @@ public class BinarySearchTree<T> where T : IElementWithKey
         {
             current = left;
         }
-        
+
         return current;
     }
 
-    public T? TreeMinimum()
+    public T TreeMinimum()
     {
         var minNode = MinimumNode(root);
 
         if (minNode is null)
-        {
-            return default;
-        }
+            throw new InvalidOperationException("TreeMinimum: Baum ist leer.");
+
         return minNode.Element;
     }
 
-    public T? Find(int key)
+    public T Find(int key)
     {
         IBinaryNode<T> current = root;
 
@@ -239,8 +261,8 @@ public class BinarySearchTree<T> where T : IElementWithKey
                 return node.Element;
             }
         }
-        
-        return default;
+
+        throw new InvalidOperationException("Find: Key nicht gefunden: " + key);
     }
 
     public override string ToString()

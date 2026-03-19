@@ -2,25 +2,34 @@
 
 public class Edge : IElementWithKey
 {
-    public Node node;
-    public int weight;
+    // Zielknoten der Kante
+    public Node Node { get; set; }
+
+    // Kantengewicht (für Dijkstra)
+    public int Weight { get; set; }
 
     public Edge(Node node, int weight)
     {
-        this.node = node;
-        this.weight = weight;
+        Node = node;
+        Weight = weight;
     }
 
-    public int Key => node.Key;
+    // Key für BST: eindeutig über Zielknoten-ID
+    public int Key
+    {
+        get { return Node.Key; }
+    }
 
+    // Weiterleitung für PriorityQueue / Dijkstra
     public int ChangeableKey
     {
-        get { return node.ChangeableKey; }
-        set { node.ChangeableKey = value; }
+        get { return Node.ChangeableKey; }
+        set { Node.ChangeableKey = value; }
     }
 
+    // Action wird an den Node weitergereicht
     public Action ChangingAction
     {
-        set { node.ChangingAction = value; }
+        set { Node.ChangingAction = value; }
     }
 }

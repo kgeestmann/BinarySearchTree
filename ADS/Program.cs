@@ -4,10 +4,13 @@ public class Program
 {
     public static void Main()
     {
-        // Binary Search Tree Test
+        // ============================================================
+        // 1) BINARY SEARCH TREE (Person)
+        // ============================================================
+
         var tree = new BinarySearchTree<Person>();
 
-        // Insert nodes
+        // Insert (Key bestimmt Position im Baum)
         tree.Insert(new Person(5, "Phillip"));
         tree.Insert(new Person(3, "Lars"));
         tree.Insert(new Person(7, "Uta"));
@@ -16,97 +19,138 @@ public class Program
         tree.Insert(new Person(6, "Tom"));
         tree.Insert(new Person(8, "Eva"));
 
-        Console.WriteLine("=== BST InOrder Traversal ===");
-        tree.InOrder(p => Console.WriteLine($"Key: {p.Key}, Name: {p.Name}"));
+        Console.WriteLine("\nInOrder (sortiert nach Key):");
+        tree.InOrder(p =>
+            Console.WriteLine("Key=" + p.Key + ", Name=" + p.Name)
+        );
 
-        var min = tree.TreeMinimum();
-        if (min != null)
-            Console.WriteLine($"\nBST Minimum element: Key = {min.Key}, Name = {min.Name}");
-
-        int findKey = 4;
-        var found = tree.Find(findKey);
-        Console.WriteLine(found != null
-            ? $"\nBST Found element with Key={findKey}: Name = {found.Name}"
-            : $"\nBST Element with Key={findKey} not found");
-
-        int deleteKey = 3;
-        var deleted = tree.Delete(deleteKey);
-        Console.WriteLine(deleted != null
-            ? $"\nBST Deleted element with Key={deleteKey}: Name = {deleted.Name}"
-            : $"\nBST Element with Key={deleteKey} not found for deletion");
-
-        Console.WriteLine("\n=== BST InOrder Traversal After Deletion ===");
-        tree.InOrder(p => Console.WriteLine($"Key: {p.Key}, Name: {p.Name}"));
-        
-        // MaxPriorityQueue Test
-        Console.WriteLine("\n=== MaxPriorityQueue Test ===");
-        var maxQueue = new MaxPriorityQueue<Person>(10);
-        maxQueue.Insert(new Person(5, "Phillip"));
-        maxQueue.Insert(new Person(3, "Lars"));
-        maxQueue.Insert(new Person(7, "Uta"));
-        maxQueue.Insert(new Person(1, "Dennis"));
-
-        Console.WriteLine("Max element (First):");
-        var maxFirst = maxQueue.First(); // einfach aufrufen
-        Console.WriteLine($"Key: {maxFirst.Key}, Name: {maxFirst.Name}");
-
-        Console.WriteLine("Extract elements from MaxPriorityQueue:");
-        for (int i = 0; i < 4; i++)
+        // TreeMinimum
+        try
         {
-            var extracted = maxQueue.ExtractFirst(); // direkt aufrufen
-            Console.WriteLine($"Key: {extracted.Key}, Name: {extracted.Name}");
+            var min = tree.TreeMinimum();
+            Console.WriteLine("\nTreeMinimum: " + min.Key + " (" + min.Name + ")");
         }
-        
-        // MinPriorityQueue Test
-        Console.WriteLine("\n=== MinPriorityQueue Test ===");
-        var minQueue = new MinPriorityQueue<Person>(10);
-        minQueue.Insert(new Person(5, "Phillip"));
-        minQueue.Insert(new Person(3, "Lars"));
-        minQueue.Insert(new Person(7, "Uta"));
-        minQueue.Insert(new Person(1, "Dennis"));
-
-        Console.WriteLine("Min element (First):");
-        var minFirst = minQueue.First();
-        Console.WriteLine($"Key: {minFirst.Key}, Name: {minFirst.Name}");
-
-        Console.WriteLine("Extract elements from MinPriorityQueue:");
-        for (int i = 0; i < 4; i++)
+        catch (Exception e)
         {
-            var extracted = minQueue.ExtractFirst();
-            Console.WriteLine($"Key: {extracted.Key}, Name: {extracted.Name}");
+            Console.WriteLine("TreeMinimum EX: " + e.Message);
         }
-        
-        Console.WriteLine("\n=== 8.3 Test mit Test-Klasse (MaxPriorityQueue) ===");
+
+        // Find
+        try
+        {
+            var f = tree.Find(4);
+            Console.WriteLine("\nFind(4): " + f.Name);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Find EX: " + e.Message);
+        }
+
+        // Delete
+        try
+        {
+            var d = tree.Delete(3);
+            Console.WriteLine("\nDelete(3): " + d.Name);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Delete EX: " + e.Message);
+        }
+
+        Console.WriteLine("\nInOrder nach Delete:");
+        tree.InOrder(p =>
+            Console.WriteLine("Key=" + p.Key + ", Name=" + p.Name)
+        );
+
+        // ============================================================
+        // PRIORITY QUEUE (ChangeableKey-Mechanismus)
+        // ============================================================
 
         var pq = new MaxPriorityQueue<Test>(20);
         Test[] arr = new Test[10];
 
-// 10 Objekte mit ChangeableKey 1..10
+        // Insert: ChangeableKey = 1..10
         for (int i = 0; i < 10; i++)
         {
             arr[i] = new Test(i + 1, i + 1);
             pq.Insert(arr[i]);
         }
 
-        Console.WriteLine("First (soll 10 sein): " + pq.First().ChangeableKey);
+        Console.WriteLine("\nFirst (soll 10 sein): " + pq.First().ChangeableKey);
 
-// ChangeableKey verbessern → Action → IncreaseKey
+        // ChangeableKey erhöhen -> Heap repariert sich automatisch
         arr[0].ChangeableKey = 100;
-
         Console.WriteLine("First nach Erhöhung (soll 100 sein): " + pq.First().ChangeableKey);
 
-        Console.WriteLine("\nExtractFirst:");
-        while (true)
+        Console.WriteLine("\nExtractFirst (absteigend):");
+        while (pq.Size > 0)
         {
-            try
-            {
-                Console.WriteLine(pq.ExtractFirst());
-            }
-            catch
-            {
-                break;
-            }
+            Console.WriteLine(pq.ExtractFirst());
+        }
+        
+        // ============================================================
+        // GRAPH
+        // ============================================================
+
+        var g = new Graph(7); // Node 0 wird nicht benutzt
+
+        g.AddEdge(1, 2, 6);
+        g.AddEdge(1, 3, 4);
+        g.AddEdge(1, 4, 3);
+
+        g.AddEdge(2, 5, 7);
+        g.AddEdge(2, 6, 2);
+
+        g.AddEdge(3, 6, 3);
+
+        g.AddEdge(6, 4, 6);
+
+        // ---------- BFS ----------
+        Console.WriteLine("\n--- BFS ab 1 ---");
+        g.BFS(1);
+
+        for (int i = 1; i <= 6; i++)
+        {
+            var n = g.Nodes[i];
+            string parent = n.Parent == null ? "-" : n.Parent.ID.ToString();
+            Console.WriteLine("Node " + n.ID +
+                              ": Dist=" + n.Distance +
+                              ", Parent=" + parent);
         }
 
+        Console.WriteLine("Pfad BFS 1 -> 4:");
+        g.PrintPath(g.Nodes[1], g.Nodes[4]);
+
+        // ---------- DFS ----------
+        Console.WriteLine("\n--- DFS ab 1 ---");
+        g.DFS(1);
+
+        for (int i = 1; i <= 6; i++)
+        {
+            var n = g.Nodes[i];
+            string parent = n.Parent == null ? "-" : n.Parent.ID.ToString();
+            Console.WriteLine("Node " + n.ID +
+                              ": Dist=" + n.Distance +
+                              ", Parent=" + parent);
+        }
+
+        Console.WriteLine("Pfad DFS 1 -> 4:");
+        g.PrintPath(g.Nodes[1], g.Nodes[4]);
+
+        // ---------- Dijkstra ----------
+        Console.WriteLine("\n--- Dijkstra ab 1 ---");
+        g.Dijkstra(1);
+
+        for (int i = 1; i <= 6; i++)
+        {
+            var n = g.Nodes[i];
+            string parent = n.Parent == null ? "-" : n.Parent.ID.ToString();
+            Console.WriteLine("Node " + n.ID +
+                              ": Dist=" + n.Distance +
+                              ", Parent=" + parent);
+        }
+
+        Console.WriteLine("Pfad Dijkstra 1 -> 4:");
+        g.PrintPath(g.Nodes[1], g.Nodes[4]);
     }
 }
