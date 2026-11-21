@@ -13,6 +13,10 @@ dotnet run --project ADS       # runs the demo in ADS/Program.cs
 
 There is no test project yet. `ADS/Program.cs` is the demo and the manual check: it prints the expected values next to the actual output (e.g. "soll 10 sein", German for "should be 10"). The build currently produces a few nullable warnings (CS8625).
 
+## Code comments
+
+Don't add comments or docstrings to new or changed code. Explanations go into the PR description or the commit message. Never describe the old or broken behaviour in the code. Leave existing comments alone unless the code they describe changes.
+
 ## Architecture
 
 - **`IElementWithKey`** is the contract that the tree and the queue share. `Key` is fixed and orders the BST. `ChangeableKey` orders the priority queue. `ChangingAction` is a callback that the queue injects into each element.
